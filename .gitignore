@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/rockbottom.db
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+uploads/
+.DS_Store
