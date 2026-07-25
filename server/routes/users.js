@@ -1,8 +1,22 @@
 import { Router } from 'express';
+import multer from 'multer';
+import path from 'path';
 import { getDb } from '../db/schema.js';
 import * as dbFuncs from '../db/queries.js';
 
 const router = Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname))
+  }
+});
+
+const upload = multer({ storage: storage });
 
 router.post('/connect', async (req, res) => {
   try {
@@ -55,16 +69,23 @@ router.get('/:wallet', async (req, res) => {
   }
 });
 
-router.patch('/:wallet', async (req, res) => {
+router.patch('/:wallet', upload.single('avatar_file'), async (req, res) => {
   try {
     const db = await getDb();
     const { display_name, avatar_seed } = req.body;
+    const file_path = req.file ? `uploads/\${req.file.filename}` : null;
+
     let user = dbFuncs.getUserByWallet(db, req.params.wallet);
     if (!user) return res.status(404).json({ error: "User not found" });
     
     const updates = {};
-    if (display_name !== undefined) updates.display_name = display_name;
-    if (avatar_seed !== undefined) updates.avatar_seed = avatar_seed;
+    if (display_name !== undefined && display_name.trim() !== '') updates.display_name = display_name;
+    
+    if (file_path) {
+      updates.avatar_seed = file_path;
+    } else if (avatar_seed !== undefined && avatar_seed.trim() !== '') {
+      updates.avatar_seed = avatar_seed;
+    }
     
     if (Object.keys(updates).length > 0) {
       user = dbFuncs.updateUser(db, req.params.wallet, updates);

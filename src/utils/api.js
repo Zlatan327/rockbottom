@@ -55,6 +55,15 @@ export const users = {
     return request(`/users/leaderboard${query ? `?${query}` : ''}`);
   },
   update: (wallet, data) => request(`/users/${wallet}`, { method: 'PATCH', body: data }),
+  updateWithFile: async (wallet, formData) => {
+    const res = await fetch(`${API_BASE}/users/${wallet}`, {
+      method: 'PATCH',
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Update failed');
+    return data;
+  },
 };
 
 // ----- Proofs -----

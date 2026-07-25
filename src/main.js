@@ -138,13 +138,30 @@ async function handleWalletConnect() {
     // Register with backend
     try {
       const { users } = await import('./utils/api.js');
-      await users.connect({ wallet_address: address });
+      const user = await users.connect({ wallet_address: address });
+      state.user = user;
+      
+      const isImage = user.avatar_seed && user.avatar_seed.startsWith('uploads/');
+      if (isImage) {
+        avatar.innerHTML = `<img src="/${user.avatar_seed}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+        avatar.style.background = 'transparent';
+      } else {
+        const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
+        avatar.innerHTML = isEmoji ? user.avatar_seed : getAvatarInitials(address);
+      }
     } catch (e) {
       // Backend might not be running yet — that's ok
       console.warn('Backend connection skipped:', e.message);
     }
 
     showToast(`Connected: ${formatAddress(address)}`, 'success');
+    
+    // UX workflow improvements:
+    if (state.currentPage === 'landing') {
+      window.location.hash = '#/markets';
+    } else {
+      navigate(); // Re-render current page to clear empty states
+    }
 
     // Listen for changes
     onAccountChange(provider, (newAddr) => {
@@ -196,6 +213,25 @@ async function tryAutoConnect() {
       const avatar = document.getElementById('nav-avatar');
       avatar.style.background = getAvatarColor(accounts[0]);
       avatar.textContent = getAvatarInitials(accounts[0]);
+      
+      // Fetch user profile silently to get PFP
+      try {
+        const { users } = await import('./utils/api.js');
+        const user = await users.get(accounts[0]);
+        if (user) {
+          state.user = user;
+          const isImage = user.avatar_seed && user.avatar_seed.startsWith('uploads/');
+          if (isImage) {
+            avatar.innerHTML = `<img src="/\${user.avatar_seed}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+            avatar.style.background = 'transparent';
+          } else {
+            const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
+            avatar.innerHTML = isEmoji ? user.avatar_seed : getAvatarInitials(accounts[0]);
+          }
+        }
+      } catch (e) {
+        // fail silently
+      }
     }
   } catch (e) {
     // Silent fail on auto-connect
