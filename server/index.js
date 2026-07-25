@@ -18,6 +18,7 @@ import setupAgentSockets from './routes/agent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const distDir = path.join(__dirname, '..', 'dist');
 
 // Ensure uploads dir exists
 const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
@@ -45,6 +46,13 @@ app.set('io', io);
 // Static files (for proofs)
 app.use('/uploads', express.static(uploadsDir));
 
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'rockbottom'
+  });
+});
+
 // Routes
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/bets', betRoutes);
@@ -54,6 +62,23 @@ app.use('/api/proofs', proofRoutes);
 // Setup WebSockets
 io.use(wsRateLimiter);
 setupAgentSockets(io);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(distDir));
+
+  app.get('*', (req, res, next) => {
+    const backendPaths = ['/api', '/socket.io', '/uploads', '/health'];
+    const isBackendPath = backendPaths.some(
+      (route) => req.path === route || req.path.startsWith(`${route}/`)
+    );
+
+    if (isBackendPath) {
+      return next();
+    }
+
+    return res.sendFile(path.join(distDir, 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 3001;
 
