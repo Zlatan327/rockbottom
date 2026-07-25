@@ -214,10 +214,10 @@ async function tryAutoConnect() {
       avatar.style.background = getAvatarColor(accounts[0]);
       avatar.textContent = getAvatarInitials(accounts[0]);
       
-      // Fetch user profile silently to get PFP
+      // Fetch user profile silently to get PFP and ensure they exist on backend
       try {
         const { users } = await import('./utils/api.js');
-        const user = await users.get(accounts[0]);
+        const user = await users.connect({ wallet_address: accounts[0] });
         if (user) {
           state.user = user;
           const isImage = user.avatar_seed && user.avatar_seed.startsWith('uploads/');
