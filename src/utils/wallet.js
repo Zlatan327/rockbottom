@@ -23,12 +23,11 @@ const LOCAL_TESTNET = {
   chainId: '0x7a69', // 31337
   chainName: 'Local Hardhat Testnet',
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-  rpcUrls: ['http://127.0.0.1:8545'],
-  blockExplorerUrls: [],
+  rpcUrls: ['http://127.0.0.1:8545']
 };
 
-// Use local testnet because X Layer RPC timed out
-const TARGET_CHAIN = LOCAL_TESTNET;
+// Use X Layer Testnet for production (Railway)
+const TARGET_CHAIN = X_LAYER_TESTNET;
 
 /**
  * Detect available wallet providers
@@ -79,10 +78,18 @@ export async function switchToXLayer(provider) {
   } catch (switchError) {
     // Chain not added yet — add it
     if (switchError.code === 4902 || switchError.code === -32603) {
-      await provider.request({
-        method: 'wallet_addEthereumChain',
-        params: [TARGET_CHAIN],
-      });
+      try {
+        await provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [TARGET_CHAIN],
+        });
+      } catch (addError) {
+        if (TARGET_CHAIN.chainId === '0x7a69') {
+          alert("MetaMask requires HTTPS to programmatically add a network. Please manually select 'Localhost 8545' in your MetaMask networks list.");
+        } else {
+          throw addError;
+        }
+      }
     } else {
       throw switchError;
     }

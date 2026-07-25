@@ -1,0 +1,46 @@
+ROCKBOTTOM WHITEPAPER
+Meme Execution Markets: Bootstrapping Liquidity Through Accountability
+
+1. ABSTRACT
+The cryptocurrency space is currently divided between highly speculative, fundamental-less meme coins and complex, often rigid prediction markets. RockBottom bridges this gap by introducing "Meme Execution Markets." RockBottom allows anyone to turn personal milestones into tradable meme coins. The protocol uniquely utilizes prediction market betting pools as a mechanism for Liquidity Bootstrapping. If a creator achieves their milestone, the combined bets of both believers (YES voters) and haters (NO voters) are permanently locked as backing liquidity for the newly minted meme coin, giving it instant intrinsic value via a Burn-to-Redeem mechanic.
+
+2. THE PROBLEM
+Two distinct problems plague the current decentralized landscape:
+- Meme Coins Lack Accountability: Thousands of tokens are launched daily with no intrinsic value, utility, or accountability, leading to immediate "rug pulls" and capital destruction.
+- Prediction Markets are Zero-Sum: Traditional prediction markets only offer linear payouts. There is no ongoing community alignment or secondary market speculation once the event resolves.
+
+3. THE ROCKBOTTOM SOLUTION
+RockBottom solves these issues by merging the speculative virality of meme coins with the binary resolution of prediction markets. When a user declares a goal on RockBottom, an autonomous AI Agent deploys a unique ERC20 token and a Prediction Market Pool (the Milestone Pool) on the X Layer blockchain.
+
+The Core Philosophy: Your haters literally fund your token's liquidity. If you succeed, the money bet against you is used to mathematically back the floor price of your coin.
+
+4. PLATFORM MECHANICS
+
+Phase 1: Creation & Token Launch
+A user submits a verifiable goal (e.g., "I will run a 5K in under 25 minutes by Friday") along with proof requirements. The RockBottom Agent automatically deploys:
+- A unique ERC20 Token (e.g., $RUN5K) via the RockBottomFactory.
+- A MilestonePool smart contract that holds OKB bets and enforces trading deadlines.
+
+Phase 2: The Prediction Market (Liquidity Bootstrapping)
+Users connect their wallets and bet native OKB on whether the creator will succeed (YES) or fail (NO). The smart contract enforces anti-manipulation limits.
+
+Phase 3: AI Verification
+Once the deadline arrives, the creator submits cryptographic or multimedia proof of completion. The RockBottom AI Agent analyzes the submission, cross-references it against the original requirements, and executes a blockchain transaction to resolve the MilestonePool.
+
+Phase 4: Burn-to-Redeem Tokenomics
+Upon resolution, the traditional prediction market model is fundamentally inverted:
+- Permanent Liquidity Lock: The entire OKB pool (both YES and NO bets) is permanently locked within the MilestonePool.
+- Token Distribution: The winners of the prediction market receive 80% of the newly minted Meme Token supply. The creator retains 20%.
+- Stable Floor Price: Because the OKB is locked, the MilestonePool acts as an Automated Market Maker (AMM) Redemption Vault. Any user holding the Meme Token can invoke the sellTokens() function to burn their tokens in exchange for their exact mathematical share of the locked OKB.
+
+Formula: Payout = (Tokens Burned / Total Token Supply) * Total OKB in Pool
+
+5. TECHNICAL ARCHITECTURE
+RockBottom is built natively on the X Layer EVM-compatible blockchain to take advantage of low gas fees and high throughput.
+- RockBottomFactory.sol: Handles the unified deployment of tokens and pools.
+- MilestoneToken.sol: An ERC20Burnable token contract representing the meme execution asset.
+- MilestonePool.sol: A Reentrancy-guarded smart contract that accepts OKB bets, handles resolution states, and serves as the Burn-to-Redeem vault post-resolution.
+- AI Agent Node: A Node.js backend integrating with advanced LLMs to provide objective, decentralized-adjacent verification of real-world proofs.
+
+6. CONCLUSION
+RockBottom pioneers a new primitive in Decentralized Finance: the Execution-Backed Meme Coin. By transforming zero-sum prediction markets into Liquidity Bootstrapping Events, RockBottom aligns the incentives of creators, believers, and haters into a cohesive, gamified financial ecosystem.
