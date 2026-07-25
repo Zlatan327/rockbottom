@@ -80,7 +80,8 @@ async function loadProfileData(wallet) {
     const user = await users.get(wallet);
     const userBets = await bets.byUser(wallet);
     
-    const isOwner = window.state?.wallet?.toLowerCase() === wallet.toLowerCase();
+    const connectedWallet = localStorage.getItem('rb_wallet');
+    const isOwner = connectedWallet?.toLowerCase() === wallet.toLowerCase();
     const displayName = (user.display_name && !user.display_name.startsWith('Anon_')) ? user.display_name : formatAddress(user.wallet_address);
     const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
     const avatarContent = isEmoji ? user.avatar_seed : user.wallet_address.slice(2,4).toUpperCase();
