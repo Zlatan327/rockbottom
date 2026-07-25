@@ -22,7 +22,7 @@ const pages = {
     const { renderMarkets } = await import('./pages/markets.js');
     return renderMarkets();
   },
-  'agent-chat': async () => {
+  'agent': async () => {
     const { renderAgentChat } = await import('./pages/agent-chat.js');
     return renderAgentChat();
   },
