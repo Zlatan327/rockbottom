@@ -1,4 +1,9 @@
-export function processMessage(state, userMessage) {
+import { GoogleGenAI } from '@google/genai';
+
+// Initialize Gemini
+const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
+
+export async function processMessage(state, userMessage) {
   let newState = state;
   let response = "";
   let milestonePreview = null;
@@ -8,41 +13,61 @@ export function processMessage(state, userMessage) {
   switch (state) {
     case 'GREETING':
       newState = 'GOAL_INPUT';
-      response = "Sup anon. Ready to put your money where your mouth is? What impossible goal are we grinding for today? Give me the deets.";
+      response = "Sup anon. Ready to put your money where your mouth is? Tell me what you're trying to achieve. I'll read your goal and automatically deploy a token, ticker, and proof requirements for you.";
       break;
 
     case 'GOAL_INPUT':
-      newState = 'REFINING';
-      response = "I hear you. But that's too vague, we need hard numbers if people are gonna bet on this. Give me a metric and a deadline. e.g. '100 pushups by Friday 5pm'.";
-      break;
-
-    case 'REFINING':
-      newState = 'PROOF_REQUIREMENTS';
-      response = "Solid. Now, how are you gonna prove it? Pics or it didn't happen. Strava link? Video? Don't make it easy to fake.";
-      break;
-
-    case 'PROOF_REQUIREMENTS':
-      newState = 'TOKEN_CONFIG';
-      response = "Alright, let's tokenize this grind. I'm thinking a supply of 1,000,000. Give me a ticker name. Something catchy like $GRIND30 or $SENDIT.";
-      break;
-
-    case 'TOKEN_CONFIG':
-      newState = 'CONFIRMATION';
-      const ticker = msg.startsWith('$') ? msg : `$\${msg.toUpperCase()}`;
-      response = `Perfect. \${ticker} is born. Look over the preview. You ready to lock this in and deploy? Once it's live, there's no backing out without taking a rep hit.`;
-      milestonePreview = {
-        title: "User's Grind Milestone",
-        description: "Achieve the goal before the deadline.",
-        proof_requirements: "User provided proof reqs",
-        token_name: "Grind Token",
-        token_ticker: ticker,
-        total_supply: 1000000,
-        status: 'draft'
-      };
+      if (!ai) {
+        response = "Error: GEMINI_API_KEY is not configured in the environment. Please add it to your .env file to enable the AI Agent.";
+        break;
+      }
+      
+      try {
+        const prompt = `
+          You are the RockBottom AI Agent. A user wants to create a "Meme Execution Market" around a personal goal.
+          Their goal is: "${userMessage}"
+          
+          Based on their goal, generate a JSON object with the following properties:
+          - "title": A catchy title for the milestone (string)
+          - "description": A slightly edgy, hype description of the goal (string)
+          - "proof_requirements": Rigorous requirements on how they must prove they achieved it to prevent cheating (string)
+          - "token_name": A cool name for their meme token (string)
+          - "token_ticker": A 3-6 letter ticker symbol starting with $ (string)
+          - "total_supply": A logical token supply between 1,000,000 and 1,000,000,000 (number)
+          
+          Only return the raw JSON object. Do not include markdown blocks or any other text.
+        `;
+        
+        const aiResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json"
+            }
+        });
+        
+        const parsed = JSON.parse(aiResponse.text);
+        
+        newState = 'CONFIRMATION';
+        response = `Alright, I've analyzed your goal. I'm minting ${parsed.token_ticker} with a supply of ${parsed.total_supply.toLocaleString()}. Review the config preview. Are you ready to deploy this on-chain?`;
+        
+        milestonePreview = {
+          title: parsed.title,
+          description: parsed.description,
+          proof_requirements: parsed.proof_requirements,
+          token_name: parsed.token_name,
+          token_ticker: parsed.token_ticker,
+          total_supply: parsed.total_supply,
+          status: 'draft'
+        };
+      } catch (err) {
+        console.error("AI Generation failed:", err);
+        response = "My AI circuits fried trying to process that. Can you rephrase your goal?";
+      }
       break;
 
     case 'CONFIRMATION':
-      if (msg.includes('yes') || msg.includes('deploy') || msg.includes('let\'s go') || msg.includes('send')) {
+      if (msg.includes('yes') || msg.includes('deploy') || msg.includes("let's go") || msg.includes('send') || msg.includes('ready')) {
         newState = 'LAUNCHED';
         response = "LFG! 🚀 Milestone deployed. Contracts are live. Share this with your friends (or enemies) and let the betting begin. Don't fail, or your execution score goes straight to the shadow realm.";
       } else {

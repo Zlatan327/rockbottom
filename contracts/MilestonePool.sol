@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 interface IMilestoneToken {
     function transfer(address to, uint256 amount) external returns (bool);
     function balanceOf(address account) external view returns (uint256);
+    function burn(uint256 amount) external;
     function burnFrom(address account, uint256 amount) external;
     function totalSupply() external view returns (uint256);
 }
@@ -21,6 +22,7 @@ contract MilestonePool is ReentrancyGuard {
 
     bool public isResolved;
     bool public outcome;
+    uint256 public rewardTokenBalance;
 
     mapping(address => uint256) public yesBets;
     mapping(address => uint256) public noBets;
@@ -74,6 +76,16 @@ contract MilestonePool is ReentrancyGuard {
         require(!isResolved, "Already resolved");
         isResolved = true;
         outcome = _outcome;
+        
+        uint256 winningPool = _outcome ? totalYes : totalNo;
+        if (winningPool > 0) {
+            rewardTokenBalance = token.balanceOf(address(this));
+        } else {
+            // No winners. Burn entire reward allocation so remaining tokens (creator's 20%)
+            // capture 100% of the OKB pool backing. "Haters fund your liquidity".
+            token.burn(token.balanceOf(address(this)));
+        }
+        
         emit PoolResolved(_outcome);
     }
 
@@ -88,10 +100,10 @@ contract MilestonePool is ReentrancyGuard {
         uint256 winningPool = outcome ? totalYes : totalNo;
         require(winningPool > 0, "No winners");
 
-        // The pool holds 80% of total token supply.
-        // We distribute that based on the user's share of the winning pool.
-        uint256 totalRewardTokens = token.balanceOf(address(this));
-        uint256 payoutTokens = (userBet * totalRewardTokens) / winningPool;
+        // The pool holds 80% of total token supply at resolution.
+        // We distribute that based on the user's share of the winning pool,
+        // using the cached balance so math doesn't break for subsequent claimers.
+        uint256 payoutTokens = (userBet * rewardTokenBalance) / winningPool;
 
         require(token.transfer(msg.sender, payoutTokens), "Token transfer failed");
 
@@ -119,7 +131,7 @@ contract MilestonePool is ReentrancyGuard {
         emit TokensSold(msg.sender, amount, payoutOKB);
     }
 
-    function getPoolState() external view returns (uint256 _totalYes, uint256 _totalNo, bool _isResolved, bool _outcome) {
-        return (totalYes, totalNo, isResolved, outcome);
+    function getPoolState() external view returns (uint256 _totalYes, uint256 _totalNo, bool _isResolved, bool _outcome, uint256 _rewardTokenBalance) {
+        return (totalYes, totalNo, isResolved, outcome, rewardTokenBalance);
     }
 }

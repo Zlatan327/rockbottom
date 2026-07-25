@@ -6,21 +6,21 @@ import { deployMilestoneOnChain } from '../services/contract-service.js';
 export default function setupAgentSockets(io) {
   const agentStates = new Map(); // socket.id -> state object
 
-  io.on('connection', (socket) => {
-    console.log(`Client connected to agent socket: \${socket.id}`);
+  io.on('connection', async (socket) => {
+    console.log(`Client connected to agent socket: ${socket.id}`);
     
     // Initialize state
     agentStates.set(socket.id, { state: 'GREETING', data: {} });
 
     // Send initial greeting
-    const { response, newState } = processMessage('GREETING', '');
+    const { response, newState } = await processMessage('GREETING', '');
     agentStates.set(socket.id, { ...agentStates.get(socket.id), state: newState });
     socket.emit('agent:message', { text: response });
 
-    socket.on('agent:message', (msg) => {
+    socket.on('agent:message', async (msg) => {
       const currentState = agentStates.get(socket.id);
       
-      const { newState, response, milestonePreview } = processMessage(currentState.state, msg);
+      const { newState, response, milestonePreview } = await processMessage(currentState.state, msg);
       
       agentStates.set(socket.id, { 
         ...currentState, 

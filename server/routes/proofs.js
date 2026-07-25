@@ -57,9 +57,8 @@ router.post('/', upload.single('proof_file'), async (req, res) => {
     // Check if we can auto-resolve
     const resolutionEval = evaluateResolution(db, milestone_id);
     if (resolutionEval.canResolve && resolutionEval.autoOutcome) {
-      // In a real app we might execute this asynchronously or require a delay
-      // For now we just log it or we could execute it
-      console.log(`Auto-resolving milestone \${milestone_id} to \${resolutionEval.autoOutcome} based on proof.`);
+      console.log(`Auto-resolving milestone ${milestone_id} to ${resolutionEval.autoOutcome} based on proof.`);
+      await executeResolution(db, milestone_id, resolutionEval.autoOutcome);
     }
 
     res.status(201).json(created);

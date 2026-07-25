@@ -16,6 +16,7 @@
     "generate:wallet": "node scripts/generate-wallet.js"
   },
   "dependencies": {
+    "@google/genai": "^2.13.0",
     "@openzeppelin/contracts": "^5.6.1",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",

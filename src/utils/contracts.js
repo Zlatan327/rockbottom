@@ -455,6 +455,11 @@ export const POOL_ABI = [
         "internalType": "bool",
         "name": "_outcome",
         "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_rewardTokenBalance",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -535,6 +540,19 @@ export const POOL_ABI = [
     "name": "resolve",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rewardTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
