@@ -6,6 +6,48 @@ import { users, bets, milestones } from '../utils/api.js';
 import { formatOKB, timeAgo } from '../utils/helpers.js';
 import { formatAddress, getAvatarColor } from '../utils/wallet.js';
 
+window.handleEditProfile = (wallet) => {
+  const modalHtml = `
+    <div id="edit-profile-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+      <div class="card" style="width: 100%; max-width: 400px; padding: var(--space-6);">
+        <h2 style="margin-bottom: var(--space-4);">Edit Profile</h2>
+        <div style="margin-bottom: var(--space-4);">
+          <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">Username</label>
+          <input type="text" id="edit-username" class="chat__input" placeholder="e.g. CryptoKing" style="width: 100%; min-height: 44px; max-height: 44px;">
+        </div>
+        <div style="margin-bottom: var(--space-6);">
+          <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">PFP Emoji</label>
+          <input type="text" id="edit-emoji" class="chat__input" placeholder="e.g. 🦊" style="width: 100%; min-height: 44px; max-height: 44px;" maxlength="4">
+        </div>
+        <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
+          <button class="btn btn--secondary" onclick="document.getElementById('edit-profile-modal').remove()">Cancel</button>
+          <button class="btn btn--primary" id="save-profile-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  
+  document.getElementById('save-profile-btn').onclick = async () => {
+    const display_name = document.getElementById('edit-username').value;
+    const avatar_seed = document.getElementById('edit-emoji').value;
+    
+    try {
+      const updates = {};
+      if (display_name) updates.display_name = display_name;
+      if (avatar_seed) updates.avatar_seed = avatar_seed;
+      
+      document.getElementById('save-profile-btn').innerText = 'Saving...';
+      await users.update(wallet, updates);
+      document.getElementById('edit-profile-modal').remove();
+      setTimeout(() => window.location.reload(), 100);
+    } catch(e) {
+      alert("Failed to update profile: " + e.message);
+      document.getElementById('save-profile-btn').innerText = 'Save';
+    }
+  };
+};
+
 export async function renderProfile(wallet) {
   if (!wallet) {
     return `
@@ -38,33 +80,43 @@ async function loadProfileData(wallet) {
     const user = await users.get(wallet);
     const userBets = await bets.byUser(wallet);
     
-    // We don't have a direct endpoint for "milestones by user" in the prompt, 
-    // but listMilestones might support filtering, or we just render stats.
+    const isOwner = window.state?.wallet?.toLowerCase() === wallet.toLowerCase();
+    const displayName = (user.display_name && !user.display_name.startsWith('Anon_')) ? user.display_name : formatAddress(user.wallet_address);
+    const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
+    const avatarContent = isEmoji ? user.avatar_seed : user.wallet_address.slice(2,4).toUpperCase();
+    const editBtnHtml = isOwner ? `<button class="btn btn--secondary btn--sm" onclick="handleEditProfile('${wallet}')" style="margin-left: auto;">Edit Profile</button>` : '';
     
     container.innerHTML = `
       <div class="card" style="margin-bottom: var(--space-8); padding: var(--space-8); display: flex; gap: var(--space-8); align-items: center; flex-wrap: wrap;">
         
         <!-- Avatar & Score Ring -->
-        <div class="score-ring" style="width: 120px; height: 120px; flex-shrink: 0;">
-          <svg width="120" height="120" class="score-ring__svg">
-            <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__bg" />
-            <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__fill" 
-                    style="stroke: ${getScoreColor(user.execution_score)}; stroke-dasharray: 339; stroke-dashoffset: ${339 - (339 * user.execution_score / 100)};" />
-          </svg>
-          <div class="score-ring__value" style="font-size: var(--text-2xl); color: ${getScoreColor(user.execution_score)};">
-            ${Math.round(user.execution_score)}
+        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-3); flex-shrink: 0;">
+          <div class="score-ring" style="width: 120px; height: 120px;">
+            <svg width="120" height="120" class="score-ring__svg">
+              <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__bg" />
+              <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__fill" 
+                      style="stroke: ${getScoreColor(user.execution_score)}; stroke-dasharray: 339; stroke-dashoffset: ${339 - (339 * user.execution_score / 100)};" />
+            </svg>
+            <div class="score-ring__value" style="font-size: var(--text-2xl); color: ${getScoreColor(user.execution_score)};">
+              ${Math.round(user.execution_score)}
+            </div>
           </div>
-          <div style="position: absolute; bottom: -24px; font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">
+          <div style="font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">
             Execution Score
           </div>
         </div>
 
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 250px;">
           <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-3);">
-            <div class="avatar" style="background: ${getAvatarColor(user.wallet_address)}; font-size: var(--text-lg);">${user.wallet_address.slice(2,4).toUpperCase()}</div>
-            ${formatAddress(user.wallet_address)}
+            <div class="avatar" style="background: ${getAvatarColor(user.wallet_address)}; font-size: var(--text-lg); display: flex; align-items: center; justify-content: center;">
+              ${avatarContent}
+            </div>
+            ${displayName}
+            ${editBtnHtml}
           </h1>
-          <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">Joined ${new Date(user.created_at).toLocaleDateString()}</p>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+            <span style="font-family: var(--font-mono);">${formatAddress(user.wallet_address)}</span> • Joined ${new Date(user.created_at).toLocaleDateString()}
+          </p>
           
           <div style="display: flex; gap: var(--space-2);">
             ${getBadges(user.execution_score)}

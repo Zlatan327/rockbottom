@@ -54,6 +54,7 @@ export const users = {
     const query = new URLSearchParams(params).toString();
     return request(`/users/leaderboard${query ? `?${query}` : ''}`);
   },
+  update: (wallet, data) => request(`/users/${wallet}`, { method: 'PATCH', body: data }),
 };
 
 // ----- Proofs -----

@@ -55,4 +55,24 @@ router.get('/:wallet', async (req, res) => {
   }
 });
 
+router.patch('/:wallet', async (req, res) => {
+  try {
+    const db = await getDb();
+    const { display_name, avatar_seed } = req.body;
+    let user = dbFuncs.getUserByWallet(db, req.params.wallet);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    
+    const updates = {};
+    if (display_name !== undefined) updates.display_name = display_name;
+    if (avatar_seed !== undefined) updates.avatar_seed = avatar_seed;
+    
+    if (Object.keys(updates).length > 0) {
+      user = dbFuncs.updateUser(db, req.params.wallet, updates);
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
