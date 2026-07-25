@@ -139,12 +139,12 @@ async function seedData(db) {
   const past = new Date(now.getTime() - 86400000).toISOString();
   
   const milestones = [
-    ["m1", "0xdemo111111111111111111111111111111111111", "Run a 5K under 25 mins", "I will run a 5K on Strava in under 25 minutes by tomorrow.", "Strava link or GPS screenshot", "AliceRun", "ARUN", "0xcontract1", "0xpool1", 1000000, "active", tmrw, now.toISOString(), null, null, null, "0xtx1", 1],
-    ["m2", "0xdemo222222222222222222222222222222222222", "Deploy Smart Contract", "Deploying the v1 token contract to mainnet.", "Etherscan link", "BobDeploy", "BDEP", "0xcontract2", "0xpool2", 1000000, "active", tmrw, now.toISOString(), null, null, null, "0xtx2", 2],
-    ["m3", "0xdemo333333333333333333333333333333333333", "Read 1 Book", "Finish reading 'Dune'.", "Photo of finished book", "ReadDune", "DUNE", "0xcontract3", "0xpool3", 1000000, "proof-submitted", tmrw, past, null, null, null, "0xtx3", 3],
-    ["m4", "0xdemo555555555555555555555555555555555555", "100 Pushups", "Do 100 pushups in one set.", "Video recording", "EvePush", "PUSH", "0xcontract4", "0xpool4", 1000000, "resolved", tmrw, past, past, "YES", 92.5, "0xtx4", 4],
-    ["m5", "0xdemo222222222222222222222222222222222222", "Wake up at 5AM", "Wake up at 5AM local time for 3 days.", "Photo of clock", "WakeEarly", "WAKE", "0xcontract5", "0xpool5", 1000000, "resolved", past, past, past, "NO", 12.0, "0xtx5", 5],
-    ["m6", "0xdemo444444444444444444444444444444444444", "Learn Rust", "Complete Rustlings.", "Screenshot of 100% completion", "RustLearn", "RUST", "0xcontract6", "0xpool6", 1000000, "expired", past, past, null, null, null, "0xtx6", 6]
+    ["m1", "0xdemo111111111111111111111111111111111111", "Run a 5K under 25 mins", "I will run a 5K on Strava in under 25 minutes by tomorrow.", "Strava link or GPS screenshot", "AliceRun", "ARUN", "0x0000000000000000000000000000000000000101", "0x0000000000000000000000000000000000000201", 1000000, "active", tmrw, now.toISOString(), null, null, null, "0xtx1", 1],
+    ["m2", "0xdemo222222222222222222222222222222222222", "Deploy Smart Contract", "Deploying the v1 token contract to mainnet.", "Etherscan link", "BobDeploy", "BDEP", "0x0000000000000000000000000000000000000102", "0x0000000000000000000000000000000000000202", 1000000, "active", tmrw, now.toISOString(), null, null, null, "0xtx2", 2],
+    ["m3", "0xdemo333333333333333333333333333333333333", "Read 1 Book", "Finish reading 'Dune'.", "Photo of finished book", "ReadDune", "DUNE", "0x0000000000000000000000000000000000000103", "0x0000000000000000000000000000000000000203", 1000000, "proof-submitted", tmrw, past, null, null, null, "0xtx3", 3],
+    ["m4", "0xdemo555555555555555555555555555555555555", "100 Pushups", "Do 100 pushups in one set.", "Video recording", "EvePush", "PUSH", "0x0000000000000000000000000000000000000104", "0x0000000000000000000000000000000000000204", 1000000, "resolved", tmrw, past, past, "YES", 92.5, "0xtx4", 4],
+    ["m5", "0xdemo222222222222222222222222222222222222", "Wake up at 5AM", "Wake up at 5AM local time for 3 days.", "Photo of clock", "WakeEarly", "WAKE", "0x0000000000000000000000000000000000000105", "0x0000000000000000000000000000000000000205", 1000000, "resolved", past, past, past, "NO", 12.0, "0xtx5", 5],
+    ["m6", "0xdemo444444444444444444444444444444444444", "Learn Rust", "Complete Rustlings.", "Screenshot of 100% completion", "RustLearn", "RUST", "0x0000000000000000000000000000000000000106", "0x0000000000000000000000000000000000000206", 1000000, "expired", past, past, null, null, null, "0xtx6", 6]
   ];
   
   milestones.forEach(m => {
