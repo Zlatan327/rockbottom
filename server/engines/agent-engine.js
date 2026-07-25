@@ -1,7 +1,5 @@
-import { GoogleGenAI } from '@google/genai';
-
-// Initialize Gemini
-const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
+// OpenRouter uses native fetch, no SDK needed
+const apiKey = process.env.OPENROUTER_API_KEY;
 
 export async function processMessage(state, userMessage) {
   let newState = state;
@@ -17,8 +15,8 @@ export async function processMessage(state, userMessage) {
       break;
 
     case 'GOAL_INPUT':
-      if (!ai) {
-        response = "Error: GEMINI_API_KEY is not configured in the environment. Please add it to your .env file to enable the AI Agent.";
+      if (!apiKey) {
+        response = "Error: OPENROUTER_API_KEY is not configured in the environment. Please add it to your .env file to enable the AI Agent.";
         break;
       }
       
@@ -38,15 +36,31 @@ export async function processMessage(state, userMessage) {
           Only return the raw JSON object. Do not include markdown blocks or any other text.
         `;
         
-        const aiResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json"
-            }
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "user", content: prompt }
+            ],
+            response_format: { type: "json_object" }
+          })
         });
         
-        const parsed = JSON.parse(aiResponse.text);
+        if (!res.ok) {
+           throw new Error(`OpenRouter error: ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        const rawContent = data.choices[0].message.content;
+        
+        // Strip out any potential markdown code blocks returned by the model
+        const cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanedContent);
         
         newState = 'CONFIRMATION';
         response = `Alright, I've analyzed your goal. I'm minting ${parsed.token_ticker} with a supply of ${parsed.total_supply.toLocaleString()}. Review the config preview. Are you ready to deploy this on-chain?`;
