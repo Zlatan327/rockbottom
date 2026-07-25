@@ -315,6 +315,10 @@ function setupMobileMenu() {
 
 // ---- Initialize App ----
 async function init() {
+  // Initialize Socket.io
+  const { initSocket } = await import('./utils/socket.js');
+  initSocket();
+
   // Setup routing
   window.addEventListener('hashchange', navigate);
 

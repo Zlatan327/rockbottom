@@ -21,20 +21,7 @@ const wallet = privateKey ? new ethers.Wallet(privateKey, provider) : null;
 // The Factory address must be injected into the env after deployment
 export const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS || "";
 
-// Load ABI
-const loadAbi = (contractName) => {
-  try {
-    const p = path.resolve(__dirname, `../../artifacts/contracts/${contractName}.sol/${contractName}.json`);
-    const data = fs.readFileSync(p, 'utf8');
-    return JSON.parse(data).abi;
-  } catch(e) {
-    console.error(`Failed to load ABI for ${contractName}`, e);
-    return [];
-  }
-};
-
-const factoryAbi = loadAbi("RockBottomFactory");
-const poolAbi = loadAbi("MilestonePool");
+import { FACTORY_ABI as factoryAbi, POOL_ABI as poolAbi } from '../../src/utils/contracts.js';
 
 /**
  * Deploys milestone contracts via the Factory using the agent wallet
