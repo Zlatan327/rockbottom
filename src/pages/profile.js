@@ -8,16 +8,24 @@ import { formatAddress, getAvatarColor } from '../utils/wallet.js';
 
 window.handleEditProfile = (wallet) => {
   const modalHtml = `
-    <div id="edit-profile-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div id="edit-profile-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: var(--space-4);">
       <div class="card" style="width: 100%; max-width: 400px; padding: var(--space-6);">
         <h2 style="margin-bottom: var(--space-4);">Edit Profile</h2>
         <div style="margin-bottom: var(--space-4);">
           <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">Username</label>
           <input type="text" id="edit-username" class="chat__input" placeholder="e.g. CryptoKing" style="width: 100%; min-height: 44px; max-height: 44px;">
         </div>
-        <div style="margin-bottom: var(--space-6);">
-          <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">PFP Emoji</label>
+        <div style="margin-bottom: var(--space-4);">
+          <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">PFP Emoji (Optional)</label>
           <input type="text" id="edit-emoji" class="chat__input" placeholder="e.g. 🦊" style="width: 100%; min-height: 44px; max-height: 44px;" maxlength="4">
+        </div>
+        <div style="margin-bottom: var(--space-6);">
+          <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">Or Upload Image</label>
+          <label class="btn btn--secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--glass-bg); border: 1px dashed var(--glass-border);">
+            📷 Choose Photo
+            <input type="file" id="edit-avatar" accept="image/*" style="display: none;">
+          </label>
+          <div id="file-name-display" style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 8px; text-align: center; min-height: 14px;"></div>
         </div>
         <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
           <button class="btn btn--secondary" onclick="document.getElementById('edit-profile-modal').remove()">Cancel</button>
@@ -27,18 +35,38 @@ window.handleEditProfile = (wallet) => {
     </div>
   `;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  const fileInput = document.getElementById('edit-avatar');
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      document.getElementById('file-name-display').innerText = file ? file.name : '';
+    });
+  }
   
   document.getElementById('save-profile-btn').onclick = async () => {
     const display_name = document.getElementById('edit-username').value;
     const avatar_seed = document.getElementById('edit-emoji').value;
+    const avatar_file = document.getElementById('edit-avatar').files[0];
     
     try {
-      const updates = {};
-      if (display_name) updates.display_name = display_name;
-      if (avatar_seed) updates.avatar_seed = avatar_seed;
-      
       document.getElementById('save-profile-btn').innerText = 'Saving...';
-      await users.update(wallet, updates);
+      
+      if (avatar_file) {
+        const formData = new FormData();
+        if (display_name) formData.append('display_name', display_name);
+        if (avatar_seed) formData.append('avatar_seed', avatar_seed);
+        formData.append('avatar_file', avatar_file);
+        
+        await users.updateWithFile(wallet, formData);
+      } else {
+        const updates = {};
+        if (display_name) updates.display_name = display_name;
+        if (avatar_seed) updates.avatar_seed = avatar_seed;
+        
+        await users.update(wallet, updates);
+      }
+      
       document.getElementById('edit-profile-modal').remove();
       setTimeout(() => window.location.reload(), 100);
     } catch(e) {
