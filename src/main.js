@@ -73,7 +73,6 @@ async function navigate() {
       main.innerHTML = `
         <div class="page">
           <div class="empty-state">
-            <div class="empty-state__icon">🔍</div>
             <h2 class="empty-state__title">Page Not Found</h2>
             <p class="empty-state__text">The page you're looking for doesn't exist.</p>
             <a href="#/" class="btn btn--primary">Go Home</a>
@@ -85,7 +84,6 @@ async function navigate() {
     main.innerHTML = `
       <div class="page">
         <div class="empty-state">
-          <div class="empty-state__icon">⚠️</div>
           <h2 class="empty-state__title">Something went wrong</h2>
           <p class="empty-state__text">${err.message}</p>
           <a href="#/" class="btn btn--primary">Go Home</a>
@@ -222,7 +220,7 @@ async function tryAutoConnect() {
           state.user = user;
           const isImage = user.avatar_seed && user.avatar_seed.startsWith('uploads/');
           if (isImage) {
-            avatar.innerHTML = `<img src="/\${user.avatar_seed}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+            avatar.innerHTML = `<img src="/${user.avatar_seed}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
             avatar.style.background = 'transparent';
           } else {
             const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
@@ -245,13 +243,11 @@ export function showToast(message, type = 'info', duration = 4000) {
   if (!container) return;
 
   const id = `toast-${++toastId}`;
-  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
 
   const toast = document.createElement('div');
   toast.className = `toast toast--${type}`;
   toast.id = id;
   toast.innerHTML = `
-    <span class="toast__icon">${icons[type] || 'ℹ️'}</span>
     <span class="toast__message">${message}</span>
     <button class="toast__close" onclick="this.closest('.toast').remove()">✕</button>
   `;
