@@ -111,8 +111,16 @@ async function loadProfileData(wallet) {
     const connectedWallet = localStorage.getItem('rb_wallet');
     const isOwner = connectedWallet?.toLowerCase() === wallet.toLowerCase();
     const displayName = (user.display_name && !user.display_name.startsWith('Anon_')) ? user.display_name : formatAddress(user.wallet_address);
+    const isImage = user.avatar_seed && user.avatar_seed.startsWith('uploads/');
     const isEmoji = user.avatar_seed && [...user.avatar_seed].length <= 2;
-    const avatarContent = isEmoji ? user.avatar_seed : user.wallet_address.slice(2,4).toUpperCase();
+    
+    let avatarContent = '';
+    if (isImage) {
+      avatarContent = `<img src="/${user.avatar_seed}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+    } else {
+      avatarContent = isEmoji ? user.avatar_seed : user.wallet_address.slice(2,4).toUpperCase();
+    }
+    
     const editBtnHtml = isOwner ? `<button class="btn btn--secondary btn--sm" onclick="handleEditProfile('${wallet}')" style="margin-left: auto;">Edit Profile</button>` : '';
     
     container.innerHTML = `
@@ -137,7 +145,7 @@ async function loadProfileData(wallet) {
 
         <div style="flex: 1; min-width: 250px;">
           <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-3);">
-            <div class="avatar" style="background: ${getAvatarColor(user.wallet_address)}; font-size: var(--text-lg); display: flex; align-items: center; justify-content: center;">
+            <div class="avatar" style="background: ${isImage ? 'transparent' : getAvatarColor(user.wallet_address)}; font-size: var(--text-lg); display: flex; align-items: center; justify-content: center;">
               ${avatarContent}
             </div>
             ${displayName}

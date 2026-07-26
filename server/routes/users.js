@@ -29,9 +29,9 @@ router.post('/connect', async (req, res) => {
     
     if (!user) {
       user = {
-        id: `u_\${Date.now()}_\${Math.random().toString(36).substring(2, 9)}`,
+        id: `u_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         wallet_address,
-        display_name: display_name || `Anon_\${wallet_address.substring(2,6)}`,
+        display_name: display_name || `Anon_${wallet_address.substring(2,6)}`,
         avatar_seed: Math.random().toString(36).substring(7),
         created_at: new Date().toISOString()
       };
@@ -73,7 +73,7 @@ router.patch('/:wallet', upload.single('avatar_file'), async (req, res) => {
   try {
     const db = await getDb();
     const { display_name, avatar_seed } = req.body;
-    const file_path = req.file ? `uploads/\${req.file.filename}` : null;
+    const file_path = req.file ? `uploads/${req.file.filename}` : null;
 
     let user = dbFuncs.getUserByWallet(db, req.params.wallet);
     if (!user) return res.status(404).json({ error: "User not found" });
