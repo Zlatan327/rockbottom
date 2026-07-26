@@ -18,9 +18,10 @@ export default function setupAgentSockets(io) {
     socket.emit('agent:reply', { text: response });
 
     socket.on('agent:message', async (msg) => {
-      const currentState = agentStates.get(socket.id);
-      
-      const { newState, response, milestonePreview } = await processMessage(currentState.state, msg);
+      try {
+        const currentState = agentStates.get(socket.id);
+        
+        const { newState, response, milestonePreview } = await processMessage(currentState.state, msg.text || '');
       
       agentStates.set(socket.id, { 
         ...currentState, 
@@ -33,6 +34,10 @@ export default function setupAgentSockets(io) {
         preview: milestonePreview,
         state: newState
       });
+      } catch (err) {
+        console.error("Agent processing error:", err);
+        socket.emit('agent:error', { message: err.message });
+      }
     });
 
     socket.on('agent:launch', async (data) => {
