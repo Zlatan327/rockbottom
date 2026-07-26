@@ -251,6 +251,7 @@ function initChat() {
 
   // Trigger initial connection state if already connected
   if (socket.connected) {
+    chatState.status = 'CONNECTED';
     socket.emit('agent:start_session', { wallet: state.wallet });
     statusBadge.className = 'badge badge--active';
     statusBadge.textContent = '● Online';
