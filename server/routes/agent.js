@@ -15,7 +15,7 @@ export default function setupAgentSockets(io) {
     // Send initial greeting
     const { response, newState } = await processMessage('GREETING', '');
     agentStates.set(socket.id, { ...agentStates.get(socket.id), state: newState });
-    socket.emit('agent:message', { text: response });
+    socket.emit('agent:reply', { text: response });
 
     socket.on('agent:message', async (msg) => {
       const currentState = agentStates.get(socket.id);
@@ -28,9 +28,10 @@ export default function setupAgentSockets(io) {
         preview: milestonePreview || currentState.preview 
       });
 
-      socket.emit('agent:message', { 
+      socket.emit('agent:reply', { 
         text: response, 
-        preview: milestonePreview 
+        preview: milestonePreview,
+        state: newState
       });
     });
 
@@ -65,7 +66,7 @@ export default function setupAgentSockets(io) {
         const deadlineDate = new Date(Date.now() + 7 * 86400000);
         const deadlineSecs = Math.floor(deadlineDate.getTime() / 1000);
 
-        socket.emit('agent:message', { text: "Deploying contracts to X Layer... hold tight." });
+        socket.emit('agent:reply', { text: "Deploying contracts to X Layer... hold tight." });
         
         const contracts = await deployMilestoneOnChain(
           creatorWallet,
@@ -101,7 +102,7 @@ export default function setupAgentSockets(io) {
         agentStates.set(socket.id, { ...currentState, state: 'LAUNCHED' });
         
         socket.emit('agent:launched', created);
-        socket.emit('agent:message', { text: `Boom. It's live. TxHash: \${contracts.txHash.substring(0,10)}...` });
+        socket.emit('agent:reply', { text: `Boom. It's live. TxHash: \${contracts.txHash.substring(0,10)}...`, state: 'LAUNCHED', milestoneId: created.id });
         
         // Notify everyone a new milestone was created
         io.emit('milestone_created', created);
