@@ -1,7 +1,7 @@
 // OpenRouter uses native fetch, no SDK needed
-const apiKey = process.env.OPENROUTER_API_KEY;
 
 export async function processMessage(state, userMessage) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
   let newState = state;
   let response = "";
   let milestonePreview = null;
