@@ -136,6 +136,14 @@ function initChat() {
 
   // --- Socket Listeners ---
 
+  // Remove previous listeners to prevent duplicates if user navigates back and forth
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('agent:typing');
+  socket.off('agent:reply');
+  socket.off('agent:error');
+  socket.off('agent:launched');
+
   socket.on('connect', () => {
     chatState.status = 'CONNECTED';
     statusBadge.className = 'badge badge--active';
