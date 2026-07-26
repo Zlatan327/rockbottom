@@ -26,10 +26,10 @@ export function renderLanding() {
 
         <div class="hero__actions">
           <a href="#/agent" class="btn btn--primary btn--xl" id="hero-create-btn">
-            🚀 Create Milestone
+            Create Milestone
           </a>
           <a href="#/markets" class="btn btn--secondary btn--xl" id="hero-markets-btn">
-            📊 Browse Markets
+            Browse Markets
           </a>
         </div>
 
@@ -112,7 +112,6 @@ export function renderLanding() {
 
         <div class="grid grid--3">
           <div class="feature-card">
-            <div class="feature-card__icon">🔐</div>
             <h3 class="feature-card__title">Anti-Dump Protection</h3>
             <p class="feature-card__desc">
               75% of token supply is locked in a vested contract. Even the creator can't dump.
@@ -121,7 +120,6 @@ export function renderLanding() {
           </div>
 
           <div class="feature-card">
-            <div class="feature-card__icon">🤖</div>
             <h3 class="feature-card__title">AI Verification</h3>
             <p class="feature-card__desc">
               The RockBottom Agent analyzes proof submissions — screenshots, links, videos, on-chain data.
@@ -130,7 +128,6 @@ export function renderLanding() {
           </div>
 
           <div class="feature-card">
-            <div class="feature-card__icon">⛓️</div>
             <h3 class="feature-card__title">On-Chain Settlement</h3>
             <p class="feature-card__desc">
               Every bet, every token, every resolution happens on X Layer.
@@ -139,7 +136,6 @@ export function renderLanding() {
           </div>
 
           <div class="feature-card">
-            <div class="feature-card__icon">⭐</div>
             <h3 class="feature-card__title">Execution Score</h3>
             <p class="feature-card__desc">
               Build your reputation. Complete milestones to increase your on-chain Execution Score.
@@ -148,7 +144,6 @@ export function renderLanding() {
           </div>
 
           <div class="feature-card">
-            <div class="feature-card__icon">🛡️</div>
             <h3 class="feature-card__title">Anti-Manipulation</h3>
             <p class="feature-card__desc">
               Self-betting detection, wash trading prevention, whale limits, and slashing for fake proofs.
@@ -157,7 +152,6 @@ export function renderLanding() {
           </div>
 
           <div class="feature-card">
-            <div class="feature-card__icon">🔥</div>
             <h3 class="feature-card__title">Meme + Utility</h3>
             <p class="feature-card__desc">
               Every milestone becomes its own narrative. Success stories go viral.
@@ -170,7 +164,7 @@ export function renderLanding() {
       <!-- Live Markets Preview -->
       <section class="live-preview">
         <div class="section-header">
-          <h2 class="section-header__title">🔴 Live <span class="text-gradient">Markets</span></h2>
+          <h2 class="section-header__title">Live <span class="text-gradient">Markets</span></h2>
           <a href="#/markets" class="btn btn--ghost btn--sm">View All →</a>
         </div>
 
@@ -189,7 +183,7 @@ export function renderLanding() {
         </p>
         <div class="hero__actions">
           <a href="#/agent" class="btn btn--primary btn--xl">
-            🪨 Hit Rock Bottom
+            Hit Rock Bottom
           </a>
         </div>
       </section>
@@ -248,8 +242,8 @@ function renderDemoMarkets() {
         </div>
       </div>
       <div class="market-card__meta">
-        <span class="market-card__meta-item">💰 ${m.totalPool}</span>
-        <span class="market-card__meta-item">⏱️ ${m.deadline}</span>
+        <span class="market-card__meta-item">Pool: ${m.totalPool}</span>
+        <span class="market-card__meta-item">Time: ${m.deadline}</span>
       </div>
       <div class="market-card__footer">
         <button class="market-card__bet-btn market-card__bet-btn--yes">Bet YES</button>

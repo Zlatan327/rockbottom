@@ -12,9 +12,9 @@ export async function renderMarkets() {
         <h1 class="section-header__title">Explore <span class="text-gradient">Markets</span></h1>
         
         <div class="tabs" id="market-filters">
-          <div class="tab active" data-filter="active">🟢 Active</div>
-          <div class="tab" data-filter="pending">⏳ Pending Review</div>
-          <div class="tab" data-filter="resolved">✅ Resolved</div>
+          <div class="tab active" data-filter="active">Active</div>
+          <div class="tab" data-filter="pending">Pending Review</div>
+          <div class="tab" data-filter="resolved">Resolved</div>
           <div class="tab" data-filter="all">All Markets</div>
         </div>
       </div>
@@ -92,7 +92,6 @@ async function loadMarkets(filter, gridElement) {
     if (!data || data.length === 0) {
       gridElement.innerHTML = `
         <div class="empty-state" style="grid-column: 1 / -1;">
-          <div class="empty-state__icon">🏜️</div>
           <h2 class="empty-state__title">No Markets Found</h2>
           <p class="empty-state__text">Looks like there are no ${filter} markets right now.</p>
           <a href="#/agent" class="btn btn--primary">Be the First</a>
@@ -110,7 +109,6 @@ async function loadMarkets(filter, gridElement) {
     console.error('Failed to load markets:', err);
     gridElement.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1; color: var(--no-red);">
-        <div class="empty-state__icon">❌</div>
         <h2 class="empty-state__title">Error Loading Markets</h2>
         <p class="empty-state__text">${err.message || 'Failed to connect to backend'}</p>
         <button class="btn btn--secondary" onclick="window.location.reload()">Retry</button>
@@ -133,12 +131,12 @@ function renderMarketCard(m) {
   // Handle status badge
   let badgeHtml = '';
   if (m.status === 'active') badgeHtml = `<span class="badge badge--active">● LIVE</span>`;
-  else if (m.status === 'pending_resolution') badgeHtml = `<span class="badge badge--pending">⏳ PENDING VERIFICATION</span>`;
+  else if (m.status === 'pending_resolution') badgeHtml = `<span class="badge badge--pending">PENDING VERIFICATION</span>`;
   else if (m.status === 'resolved') {
-    if (m.resolution === 'yes') badgeHtml = `<span class="badge badge--resolved-yes">✅ RESOLVED YES</span>`;
-    else badgeHtml = `<span class="badge badge--resolved-no">❌ RESOLVED NO</span>`;
+    if (m.resolution === 'yes') badgeHtml = `<span class="badge badge--resolved-yes">RESOLVED YES</span>`;
+    else badgeHtml = `<span class="badge badge--resolved-no">RESOLVED NO</span>`;
   } else if (m.status === 'expired') {
-    badgeHtml = `<span class="badge badge--expired">⚠️ EXPIRED</span>`;
+    badgeHtml = `<span class="badge badge--expired">EXPIRED</span>`;
   }
 
   return `
@@ -168,10 +166,10 @@ function renderMarketCard(m) {
       
       <div class="market-card__meta">
         <span class="market-card__meta-item">
-          💰 ${totalBets ? totalBets.toFixed(2) : 0} OKB
+          Pool: ${totalBets ? totalBets.toFixed(2) : 0} OKB
         </span>
         <span class="market-card__meta-item countdown-timer" data-deadline="${m.deadline}" id="timer-${m.id}">
-          ⏱️ ...
+          Time: ...
         </span>
       </div>
       
@@ -199,17 +197,17 @@ function startTimers(markets) {
       if (!el) return;
       
       if (m.status !== 'active') {
-        el.innerHTML = '🏁 Finished';
+        el.innerHTML = 'Finished';
         return;
       }
       
       const { text, expired, urgent } = getCountdown(m.deadline);
       
       if (expired) {
-        el.innerHTML = '⚠️ Expired';
+        el.innerHTML = 'Expired';
         el.classList.add('countdown--urgent');
       } else {
-        el.innerHTML = `⏱️ ${text}`;
+        el.innerHTML = `Time: ${text}`;
         if (urgent) el.classList.add('countdown--urgent');
         else el.classList.remove('countdown--urgent');
       }

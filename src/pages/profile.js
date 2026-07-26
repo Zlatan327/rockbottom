@@ -22,7 +22,7 @@ window.handleEditProfile = (wallet) => {
         <div style="margin-bottom: var(--space-6);">
           <label style="display: block; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--space-2);">Or Upload Image</label>
           <label class="btn btn--secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--glass-bg); border: 1px dashed var(--glass-border);">
-            📷 Choose Photo
+            Choose Photo
             <input type="file" id="edit-avatar" accept="image/*" style="display: none;">
           </label>
           <div id="file-name-display" style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 8px; text-align: center; min-height: 14px;"></div>
@@ -124,39 +124,43 @@ async function loadProfileData(wallet) {
     const editBtnHtml = isOwner ? `<button class="btn btn--secondary btn--sm" onclick="handleEditProfile('${wallet}')" style="margin-left: auto;">Edit Profile</button>` : '';
     
     container.innerHTML = `
-      <div class="card" style="margin-bottom: var(--space-8); padding: var(--space-8); display: flex; gap: var(--space-8); align-items: center; flex-wrap: wrap;">
+      <div class="card" style="margin-bottom: var(--space-8); padding: var(--space-8); display: flex; gap: var(--space-8); align-items: center; justify-content: space-between; flex-wrap: wrap;">
         
-        <!-- Avatar & Score Ring -->
-        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-3); flex-shrink: 0;">
-          <div class="score-ring" style="width: 120px; height: 120px;">
-            <svg width="120" height="120" class="score-ring__svg">
-              <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__bg" />
-              <circle cx="60" cy="60" r="54" stroke-width="8" class="score-ring__fill" 
-                      style="stroke: ${getScoreColor(user.execution_score)}; stroke-dasharray: 339; stroke-dashoffset: ${339 - (339 * user.execution_score / 100)};" />
+        <div style="display: flex; gap: var(--space-8); align-items: center;">
+          <!-- Big Avatar -->
+          <div class="avatar" style="width: 120px; height: 120px; font-size: 48px; background: ${isImage ? 'transparent' : getAvatarColor(user.wallet_address)}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            ${avatarContent}
+          </div>
+          
+          <!-- User Info -->
+          <div>
+            <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-3);">
+              ${displayName}
+              ${editBtnHtml}
+            </h1>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-family: var(--font-mono);">
+              ${formatAddress(user.wallet_address)} • Joined ${new Date(user.created_at).toLocaleDateString()}
+            </p>
+            <div style="display: flex; gap: var(--space-2);">
+              ${getBadges(user.execution_score)}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Score Ring -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-3);">
+          <div class="score-ring" style="width: 100px; height: 100px;">
+            <svg width="100" height="100" class="score-ring__svg">
+              <circle cx="50" cy="50" r="45" stroke-width="6" class="score-ring__bg" />
+              <circle cx="50" cy="50" r="45" stroke-width="6" class="score-ring__fill" 
+                      style="stroke: ${getScoreColor(user.execution_score)}; stroke-dasharray: 283; stroke-dashoffset: ${283 - (283 * user.execution_score / 100)};" />
             </svg>
-            <div class="score-ring__value" style="font-size: var(--text-2xl); color: ${getScoreColor(user.execution_score)};">
+            <div class="score-ring__value" style="font-size: var(--text-xl); color: ${getScoreColor(user.execution_score)};">
               ${Math.round(user.execution_score)}
             </div>
           </div>
           <div style="font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">
             Execution Score
-          </div>
-        </div>
-
-        <div style="flex: 1; min-width: 250px;">
-          <h1 style="font-size: var(--text-3xl); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-3);">
-            <div class="avatar" style="background: ${isImage ? 'transparent' : getAvatarColor(user.wallet_address)}; font-size: var(--text-lg); display: flex; align-items: center; justify-content: center;">
-              ${avatarContent}
-            </div>
-            ${displayName}
-            ${editBtnHtml}
-          </h1>
-          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
-            <span style="font-family: var(--font-mono);">${formatAddress(user.wallet_address)}</span> • Joined ${new Date(user.created_at).toLocaleDateString()}
-          </p>
-          
-          <div style="display: flex; gap: var(--space-2);">
-            ${getBadges(user.execution_score)}
           </div>
         </div>
       </div>
@@ -216,9 +220,9 @@ function getScoreColor(score) {
 
 function getBadges(score) {
   let html = '';
-  if (score >= 80) html += `<span class="badge" style="background: rgba(50, 205, 100, 0.15); color: var(--yes-green);">🏆 TOP EXECUTOR</span>`;
-  if (score < 30) html += `<span class="badge" style="background: rgba(220, 53, 69, 0.15); color: var(--no-red);">⚠️ HIGH RISK</span>`;
-  return html || `<span class="badge" style="background: var(--glass-bg); color: var(--text-secondary);">Rookie</span>`;
+  if (score >= 80) html += `<span class="badge" style="background: rgba(50, 205, 100, 0.15); color: var(--yes-green);">TOP EXECUTOR</span>`;
+  if (score < 30) html += `<span class="badge" style="background: rgba(220, 53, 69, 0.15); color: var(--no-red);">HIGH RISK</span>`;
+  return html || `<span class="badge" style="background: var(--glass-bg); color: var(--text-secondary);">ROOKIE</span>`;
 }
 
 function renderBetHistory(bets) {
